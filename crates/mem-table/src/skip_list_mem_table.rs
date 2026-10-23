@@ -121,14 +121,14 @@ impl SkipListMemTable {
 }
 
 impl MemTable for SkipListMemTable {
-    fn put(&mut self, key: Vec<u8>, value: Vec<u8>) {
+    fn put(&mut self, key: Vec<u8>, value: Option<Vec<u8>>) {
         // find and replace if existing node
         if let Some(node_idx) = self.get_node_idx_by_key(&key) {
             let node = &mut self.nodes[node_idx];
 
             let old_value_size = node.value.as_ref().map_or(0, Vec::len);
 
-            node.value = Some(value);
+            node.value = value;
 
             self.total_bytes_size -= old_value_size;
             self.total_bytes_size += node.value.as_ref().unwrap().len();
@@ -150,7 +150,7 @@ impl MemTable for SkipListMemTable {
 
         let new_node = SkipListNode {
             key,
-            value: Some(value),
+            value: value,
             next: vec![None; node_height],
         };
 
@@ -234,21 +234,21 @@ mod tests {
         let key1 = "rahul".as_bytes();
         let value1 = "chocha".as_bytes();
 
-        skip_list.put(key1.to_vec(), value1.to_vec());
+        skip_list.put(key1.to_vec(), Some(value1.to_vec()));
 
         assert_eq!(skip_list.get(key1), Some(value1.to_vec()));
 
         let key2 = "rahul1".as_bytes();
         let value2 = "chocha2".as_bytes();
 
-        skip_list.put(key2.to_vec(), value2.to_vec());
+        skip_list.put(key2.to_vec(), Some(value2.to_vec()));
 
         assert_eq!(skip_list.get(key2), Some(value2.to_vec()));
 
         let key1 = "rahul".as_bytes();
         let value1 = "chocha2".as_bytes();
 
-        skip_list.put(key1.to_vec(), value1.to_vec());
+        skip_list.put(key1.to_vec(), Some(value1.to_vec()));
 
         assert_eq!(skip_list.get(key1), Some(value1.to_vec()));
 

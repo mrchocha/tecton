@@ -23,11 +23,11 @@ impl BTreeMemTable {
 }
 
 impl MemTable for BTreeMemTable {
-    fn put(&mut self, key: Vec<u8>, value: Vec<u8>) {
+    fn put(&mut self, key: Vec<u8>, value: Option<Vec<u8>>) {
         let mut store = self.store.write().unwrap();
 
-        self.bytes_size += key.len() + value.len();
-        if let Some(prv_val) = store.insert(key, Some(value))
+        self.bytes_size += key.len() + value.iter().len();
+        if let Some(prv_val) = store.insert(key, value)
             && let Some(non_empty_val) = prv_val
         {
             self.bytes_size -= non_empty_val.len()
@@ -107,21 +107,21 @@ mod tests {
         let key1 = "rahul".as_bytes();
         let value1 = "chocha".as_bytes();
 
-        skip_list.put(key1.to_vec(), value1.to_vec());
+        skip_list.put(key1.to_vec(), Some(value1.to_vec()));
 
         assert_eq!(skip_list.get(key1), Some(value1.to_vec()));
 
         let key2 = "rahul1".as_bytes();
         let value2 = "chocha2".as_bytes();
 
-        skip_list.put(key2.to_vec(), value2.to_vec());
+        skip_list.put(key2.to_vec(), Some(value2.to_vec()));
 
         assert_eq!(skip_list.get(key2), Some(value2.to_vec()));
 
         let key1 = "rahul".as_bytes();
         let value1 = "chocha2".as_bytes();
 
-        skip_list.put(key1.to_vec(), value1.to_vec());
+        skip_list.put(key1.to_vec(), Some(value1.to_vec()));
 
         assert_eq!(skip_list.get(key1), Some(value1.to_vec()));
 

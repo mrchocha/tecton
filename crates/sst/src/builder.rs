@@ -78,9 +78,9 @@ impl SSTBuilder {
             .get(block_index_start..block_index_end)
             .ok_or(ByteReaderError::InvalidData)?;
 
-        let blockes_bytes = bytes
-            .get(0..block_index_start)
-            .ok_or(ByteReaderError::InvalidData)?;
+        // let blockes_bytes = bytes
+        //     .get(0..block_index_start)
+        //     .ok_or(ByteReaderError::InvalidData)?;
 
         let mut index_btreader = ByteReader::new(blockes_index_bytes);
 

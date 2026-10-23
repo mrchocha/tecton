@@ -1,7 +1,7 @@
-use tokio::{fs::File, io::BufReader};
+use std::{fs::File, io::BufReader};
 
 use common::{
-    bytes_reader::{BufferByteAsyncReader, ByteReader},
+    bytes_reader::{BufferByteReader, ByteReader},
     types::KeyValue,
 };
 
@@ -65,7 +65,7 @@ impl WalRecord {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, WalError> {
         let mut breader = ByteReader::new(bytes);
 
-        let size = breader.read_usize()?;
+        let _ = breader.read_usize()?;
         let crc32 = breader.read_u32()?;
 
         let term = breader.read_u32()?;
@@ -87,16 +87,16 @@ impl WalRecord {
         Ok(wal_record)
     }
 
-    pub async fn from_buffer(buffer: &mut BufReader<File>) -> Result<Self, WalError> {
-        let mut breader = BufferByteAsyncReader::new(buffer);
+    pub fn from_buffer(buffer: &mut BufReader<File>) -> Result<Self, WalError> {
+        let mut breader = BufferByteReader::new(buffer);
 
-        let size = breader.read_usize().await?;
-        let crc32 = breader.read_u32().await?;
+        let _ = breader.read_usize()?;
+        let crc32 = breader.read_u32()?;
 
-        let term = breader.read_u32().await?;
-        let index = breader.read_u32().await?;
-        let op_type = OperationTypeEnum::from_u8(breader.read_u8().await?)?;
-        let key_val = breader.read_key_val().await?;
+        let term = breader.read_u32()?;
+        let index = breader.read_u32()?;
+        let op_type = OperationTypeEnum::from_u8(breader.read_u8()?)?;
+        let key_val = breader.read_key_val()?;
 
         let wal_record = WalRecord {
             term,

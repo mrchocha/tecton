@@ -1,5 +1,3 @@
-use std::fs;
-
 use crate::{error::WalError, file::WalFile, record::WalRecord, util};
 
 pub struct WalOptions {
@@ -7,8 +5,8 @@ pub struct WalOptions {
     pub max_file_size: usize,
 }
 
-pub struct WalManager<'a> {
-    options: &'a WalOptions,
+pub struct WalManager {
+    options: WalOptions,
 
     current_file: WalFile,
 
@@ -16,11 +14,11 @@ pub struct WalManager<'a> {
     max_wal_file_seq_no: u32,
 }
 
-impl<'a> WalManager<'a> {
-    pub async fn new(options: &'a WalOptions) -> Result<WalManager<'a>, WalError> {
-        let mut file = util::get_first_file(options, Some(0)).await?;
+impl WalManager {
+    pub fn new(options: WalOptions) -> Result<WalManager, WalError> {
+        let mut file = util::get_first_file(&options, Some(0))?;
         if file.is_none() {
-            file = Some(WalFile::create(options, 1).await?);
+            file = Some(WalFile::create(&options, 1)?);
         }
 
         let wal_file = file.expect("Wal file not found");
@@ -37,21 +35,21 @@ impl<'a> WalManager<'a> {
         self.current_file.get_size() >= self.options.max_file_size
     }
 
-    async fn rotate(&mut self) -> Result<(), WalError> {
+    fn rotate(&mut self) -> Result<(), WalError> {
         self.max_wal_file_seq_no += 1;
-        let file = WalFile::create(self.options, self.max_wal_file_seq_no).await?;
+        let file = WalFile::create(&self.options, self.max_wal_file_seq_no)?;
 
         self.current_file = file;
 
         Ok(())
     }
 
-    pub async fn write(&mut self, wal_record: &WalRecord) -> Result<(), WalError> {
+    pub fn write(&mut self, wal_record: &WalRecord) -> Result<(), WalError> {
         if self.should_rotate() {
-            self.rotate().await?
+            self.rotate()?
         }
 
-        self.current_file.append(wal_record).await?;
+        self.current_file.append(wal_record)?;
 
         Ok(())
     }

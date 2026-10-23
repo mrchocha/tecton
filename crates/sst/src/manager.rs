@@ -9,14 +9,14 @@ pub struct SSTOptions {
     pub max_file_size: usize,
 }
 
-pub struct SSTManager<'a> {
-    options: &'a SSTOptions,
+pub struct SSTManager {
+    options: SSTOptions,
 
     max_seq_no: u32,
 }
 
-impl<'a> SSTManager<'a> {
-    pub fn new(options: &'a SSTOptions) -> Self {
+impl SSTManager {
+    pub fn new(options: SSTOptions) -> Self {
         Self {
             options,
             max_seq_no: 0,
@@ -30,7 +30,7 @@ impl<'a> SSTManager<'a> {
         self.max_seq_no += 1;
         let sst_builder = SSTBuilder::new(mem_table, self.max_seq_no);
 
-        sst_builder.flush(self.options)?;
+        sst_builder.flush(&self.options)?;
 
         Ok(())
     }
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn create_sst() {
-        let options = &SSTOptions {
+        let options = SSTOptions {
             file_path: "./test/sst".to_string(),
             max_file_size: 4096,
         };
@@ -86,7 +86,7 @@ mod tests {
                 let key = format!("key_{0}_{1}", sst_file, id).as_bytes().to_vec();
                 let value = format!("value_{0}_{1}", sst_file, id).as_bytes().to_vec();
 
-                mem_table.put(key, value);
+                mem_table.put(key, Some(value));
             }
 
             sst_manager
@@ -94,8 +94,13 @@ mod tests {
                 .expect("error while flushing table");
         }
 
+        let options = SSTOptions {
+            file_path: "./test/sst".to_string(),
+            max_file_size: 4096,
+        };
+
         let created_sst_files =
-            SSTManager::list_files(options).expect("error while reading sst files");
+            SSTManager::list_files(&options).expect("error while reading sst files");
 
         assert_eq!(created_sst_files.len(), sst_file_total);
     }

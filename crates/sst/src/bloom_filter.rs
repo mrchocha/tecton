@@ -87,7 +87,7 @@ impl BloomFilter {
 
 #[cfg(test)]
 mod tests {
-    use std::{assert_eq, format, println};
+    use std::{assert_eq, format};
 
     use super::*;
 

@@ -5,24 +5,24 @@ A **Log-Structured Merge (LSM) Tree based storage engine written in Rust.**, bui
 The goal of this project is to understand how modern storage engines use **WALs, MemTables, Bloom Filters, SSTables, and compaction** to efficiently handle writes and persistent storage.
 
 ## Features
-
+* [ ] Manifest
 * [x] WAL persistence
-  * [x] chunking 
-  * [ ] rotation
-  * [X] iterator
+  * [x] Chunking 
+  * [ ] Rotation
+  * [X] Iterator
+  * [ ] Replay
 * [x] MemTable implementation
   * [x] Btree based
   * [x] Skip list based
 * [x] Bloom filter
 * [x] SSTable persistence
   * [x] SST Block creation
-  * [ ] compression
-  * [ ] decompression 
-* [ ] SSTable 
-  * [ ] merge 
-  * [ ] compaction
+  * [ ] Merge
+  * [ ] Compression
+  * [ ] Decompression 
+* [ ] Garbage Collector
 * [x] Delete 
-  * [x]  tombstone handling
+  * [x] Tombstone handling
 
 ## Reference
 
